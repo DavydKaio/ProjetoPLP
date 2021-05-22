@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"net"
 	"os"
 )
@@ -31,5 +33,22 @@ func main() {
 		fmt.Println("Client Connected")
 
 		fmt.Println("Client " + conn.RemoteAddr().String() + " connected.")
+
+		go handleConnection(conn)
 	}
+}
+
+func handleConnection(conn net.Conn) {
+	buffer, err := bufio.NewReader(conn).ReadBytes('\n')
+	if err != nil {
+		fmt.Println("Client Left")
+		conn.Close()
+		return
+	}
+
+	log.Println("Cliente message: ", string(buffer[:len(buffer)-1]))
+
+	conn.Write(buffer)
+
+	handleConnection(conn)
 }
